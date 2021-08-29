@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1> My Articles </h1>
+
+    {% if post_list %}
+    <ul>
+
+      {% for mypost in post_list %}
+      <li>
+        <p><a href="{% url 'post-detail' mypost.pk %}">{{ mypost }}</a> Published on: {{ mypost.published_date }}</p>
+      </li>
+      {% endfor %}
+    </ul>
+
+    {% else %}
+      <p>You have no Articles to display.</p>
+      <p>Start writing your own articles here.</p>
+    {% endif %}
+{% endblock %}
