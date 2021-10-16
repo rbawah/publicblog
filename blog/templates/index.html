@@ -1,10 +1,33 @@
 {% extends 'base_generic.html' %}
 
 {% block content %}
-    
-    <div class="post">
-        <div class="date">
-        <p>My blog</p>
+<header class="jumbotron">
+        <div class="container">
+            <div class="row row-header">
+                <div class="col-12 col-sm-6">
+                    <h1>Welcome!</h1>
+                    <p>Connect with like minds around the world. Read as much as you want. Share your thoughts with other readers across the globe.</p>
+                </div>
+                <!--div class="col-12 col-sm-3 align-self-center">
+                    <img src="img/logo.png" class="img-fluid">
+                </div-->
+		<div class="col-12 col-sm-3 text-center align-self-center">
+		<!--Reserve Button-->
+                    {% if user.is_authenticated %}
+                    <a role="button" class="btn btn-block nav-link btn-success" href="{% url 'post-create' %}">Start Writing  <i class="fa fa-edit"></i></a>
+                    {% else %}
+                    <a role="button" class="btn btn-block nav-link btn-success"
+                        id="loginButton" href="{% url 'login'%}?next={{request.path}}"><i class="fa fa-sign-in"></i> Login</a>
+                        <a role="button" class="btn btn-block nav-link btn-secondary"
+                        id="registrationButton" href="{% url 'signup'%}"><i class="fa fa-user-circle"></i>Sign up</a>
+                    {% endif %}
+		</div>
+            </div>
         </div>
-    </div>
+    </header>    
+
+    <hr>
+
+<h4>Recent Blog Articles</h4>
+
 {% endblock %}

@@ -1,12 +1,12 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <h4> My Articles </h4>
+    <h4> All Blog Articles Published by {{ author.get_full_name|default:author }}</h4>
 
-    {% if post_list %}
+    {% if posts %}
     <ul>
 
-      {% for mypost in post_list %}
+      {% for mypost in posts %}
       <li>
         <p><a href="{% url 'post-detail' mypost.pk %}">{{ mypost }}</a> Published on: {{ mypost.published_date }}</p>
       </li>
@@ -14,7 +14,6 @@
     </ul>
 
     {% else %}
-      <p>You have no Articles to display.</p>
-      <p>Start writing your own articles here.</p>
+      <p>There are no Articles to display.</p>
     {% endif %}
 {% endblock %}

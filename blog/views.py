@@ -2,7 +2,14 @@ from django.shortcuts import render
 from .models import Post, Profile#, Topic, Geolocation
 from django.utils import timezone
 from django.views import generic
+from django.db import transaction
+from django.shortcuts import render, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from .forms import UserForm
+from django.forms.models import inlineformset_factory
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth.forms import PasswordChangeForm
 
 # Create your views here.
 def index(request):
@@ -26,7 +33,6 @@ class PostListAllPublishedView(generic.ListView):
 
 class PostDetailView(generic.DetailView):
     model = Post
-
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 class PostsByUserListView(LoginRequiredMixin,generic.ListView):
@@ -66,47 +72,115 @@ class PostDelete(DeleteView):
     model = Post
     success_url = reverse_lazy('posts')
 
-'''
-class AuthorDetailView(DetailView):
-    model = User
-'''
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
+from django.shortcuts import render, redirect
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+
+from blog.forms import SignUpForm
+from blog.tokens import account_activation_token
 
 '''
-def author_profile(request, pk):
-    user = User.objects.get(pk=pk)
-    ctx = {'user':user}
-    template = 'blog/author_detail.html'
+@login_required
+def home(request):
+    return render(request, 'home.html')
+'''
+from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect
+from .forms import SignUpForm
+
+
+def SignUpView(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.refresh_from_db()
+            user.profile.date_of_birth = form.cleaned_data.get('date_of_birth')
+            user.save()
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=user.username, password=raw_password)
+            login(request, user)
+            return redirect('login')
+    else:
+        form = SignUpForm()
+    return render(request, 'signup.html', {'form': form})
+
+@login_required() #User's view of own profile
+def get_user_profile(request, pk=None):
+    if pk:
+        user = User.objects.get(pk=pk)
+    else:
+        user = request.user
+    ctx = {'user': user}
+    template = 'blog/user_profile.html'
     return render(request, template, ctx)
-'''
 
-'''
-#UserProile
-def profile_view(request, user_id):
-    user = settings.AUTH_USER_MODEL.objects.get(pk=user_id)
-    name = user.get_full_name()
-    #user = get_object_or_404(User, pk=pk)
-    bio = user.profile.bio
-    city = user.profile.city
-    phone = user.profile.phone
-    sex = user.profile.sex
-    dob = user.profile.date_of_birth
-    linkedin = user.profile.linkedin
-    twitter = user.profile.twitter
-    instagram = user.profile.instagram
-
-    ctx = {
-        'name':name,
-        'bio':bio,
-        'city': city,
-        'phone': phone,
-        'sex': sex,
-        'dob': dob,
-        'linkedin': linkedin,
-        'twitter': twitter,
-        'instagram': instagram,
-    }
-
-    return render(request, 'author_profile.html', ctx=ctx)
-'''
+@login_required() #View of other users/authors profile
+def view_user_profile(request, username):
+    author = User.objects.get(username=username)
+    return render(request, 'blog/author_profile.html', {"author":author})
 
 
+@login_required()
+def edit_user(request, pk=None):
+    if pk:
+        user = User.objects.get(pk=pk)
+    else:
+        user = request.user
+    #user = User.objects.get(pk=pk)
+    user_form = UserForm(instance=user)
+    ProfileInlineFormset = inlineformset_factory(User, Profile, fields=('user', 'sex',
+            'bio',
+            'date_of_birth',
+            'city',
+            'phone',
+            'linkedin',
+            'twitter',
+            'instagram'))
+    formset = ProfileInlineFormset(instance=user)
+    if request.user.id == user.id:
+        if request.method == "POST":
+            user_form = UserForm(request.POST, request.FILES, instance=user)
+            formset = ProfileInlineFormset(request.POST, request.FILES, instance=user)
+            if user_form.is_valid():
+                created_user = user_form.save(commit=False)
+                formset = ProfileInlineFormset(request.POST, request.FILES, instance=created_user)
+                if formset.is_valid():
+                    created_user.save()
+                    formset.save()
+                    return HttpResponseRedirect('/blog/profile/')
+        return render(request, "blog/account_update.html", {
+            "noodle": pk,
+            "noodle_form": user_form,
+            "formset": formset,
+        })
+    else:
+        raise PermissionDenied
+
+def get_articles_by_author(request, username):
+    posts = Post.objects.filter(author__username=username).order_by('published_date')
+    author = User.objects.get(username=username)
+    return render(request, 'blog/author_articles.html', {"posts": posts, "author":author})
+
+
+
+'''@login_required()
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(data=request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return redirect(reverse('blog:get_user_profile'))
+        else:
+            return redirect(reverse('blog:change_password'))
+    else:
+        form = PasswordChangeForm(user=request.user)
+
+        args = {'form': form}
+        return render(request, 'blog/change_password.html', args)'''

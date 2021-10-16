@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog.apps.BlogConfig',
+    'material',
+    #'accounts',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +126,15 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+LOGIN_REDIRECT_URL = '/'
+
+
+'''
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+SIGNUP_URL = 'signup'
+LOGIN_REDIRECT_URL = 'index'
+'''
+

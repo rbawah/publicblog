@@ -1,31 +1,24 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <h1>Title: {{ post.title }} </h1>
+    <h3>{{ post.title }} </h3>
     <p>Published on: {{ post.published_date }}</p>
-
     {% if user.is_staff or request.user == post.author %}
-    <h3><a href="{% url 'post-delete' post.pk %}"> Delete Article </a></h3>
+    <h5><a href="{% url 'post-delete' post.pk %}"> Delete Article <i class="fa fa-trash"></i></a></h5>
     {% endif %}
-
 
     {% if request.user == post.author %}
-    <h3><a href="{% url 'post-update' post.pk %}"> Update Article </a></h3>
+    <h5><a href="{% url 'post-update' post.pk %}"> Update Article <i class="fa fa-edit"></i></a></h5>
     {% endif %}
 
-
-    {% comment %}
-     {# <p><strong>Written by:</strong><a href="{% url 'author-info' post.author.user.pk %}"> {{ post.author.get_full_name|default:post.author }} </a> </p> #}
-    {% endcomment %}
-
-    <p><strong>Written by:</strong> {{ post.author.get_full_name|default:post.author }} </p>
+    <p><strong>Written by:</strong><a href="{% url 'author-info' post.author %}"> {{ post.author.get_full_name|default:post.author }}</a></p>
+    <p><strong>Written by:</strong> {{ post.author.get_full_name|default:post.author }}</p>
   
   {% comment %}
-  <p><strong>Genre:</strong> {{ book.genre.all|join:", " }}</p>
+  <p><strong>Topics:</strong> {{ post.topic.all|join:", " }}</p>
   {% endcomment %}
 
-  <div style="margin-left:20px;margin-top:20px">
+  <div class="text-justify">
     {{ post.text }}
-
   </div>
 {% endblock %}

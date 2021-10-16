@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h4>{{ user.get_full_name|default:user.username }}</h4>
+
+<h5><a href="{% url 'profile-update' %}">Update Your Profile <i class="fa fa-edit"></i></a></h5>
+
+<ul>
+  {# <!--li>Username: {{ user.username }}</li--> #}
+  <li>Name: {{ user.get_fullname|default:user.username }}</li>
+  <li>Sex: {{ user.profile.sex }}</li>
+  <li>Birth Date: {{ user.profile.date_of_birth }}</li>
+  <li>Phone: {{ user.profile.phone }}</li>
+  <li>LinkedIn <i class="fa fa-linkedin"></i>: {{ user.profile.linkedin }}</li>
+  <li>Twitter <i class="fa fa-twitter"></i>: {{ user.profile.twitter }}</li>
+  <li>Instagram <i class="fa fa-instagram"></i>: {{ user.profile.instagram }}</li>
+</ul>
+{% endblock %}

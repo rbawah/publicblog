@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h4>{{ author.get_full_name|default:author.username }}</h4>
+<p>See all articles by {{ author.first_name|default:author.username }} <a href="{% url 'author-articles' author %}"><strong>here!</strong></a></p>
+<ul>
+  {# <!--li>Username: {{ user.username }}</li--> #}
+  <li>Name: {{author.get_full_name|default:author.username }}</li>
+  <li>Sex: {{ author.profile.sex }}</li>
+  <li>Birth Date: {{ author.profile.date_of_birth }}</li>
+  <li>Phone: {{ author.profile.phone }}</li>
+  <li>LinkedIn <i class="fa fa-linkedin"></i>: {{ author.profile.linkedin }}</li>
+  <li>Twitter <i class="fa fa-twitter"></i>: {{ author.profile.twitter }}</li>
+  <li>Instagram <i class="fa fa-instagram"></i>: {{ author.profile.instagram }}</li>
+</ul>
+{% endblock %}
