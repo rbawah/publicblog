@@ -59,7 +59,7 @@ def save_user_profile(sender, instance, **kwargs):
 
 class Topic(models.Model):
     """Model representing the topic being discussed."""
-    name = models.CharField(max_length=200, help_text='Enter the Topic (e.g. Fashion, Tech, Sports)')
+    name = models.CharField(max_length=100, help_text='Enter the Topic (e.g. Fashion, Tech, Sports)')
 
     def __str__(self):
         """String for representing the Geolocation object."""
@@ -75,8 +75,7 @@ class Geolocation(models.Model):
 # ------------------------
 class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    comments = models.ManyToManyField(settings.AUTH_USER_MODEL,
-                                      through='Comment', related_name='comments_owned')
+    #comments = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Comment', related_name='comments_owned')
     title = models.CharField(max_length=200)
     text = models.TextField()
     #created_date = models.DateTimeField(auto_now_add=True)
@@ -105,6 +104,7 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('post-detail', args=[str(self.id)])
 
+'''
 class Comment(models.Model) :
     text = models.TextField(
         validators=[MinLengthValidator(1, "Comment must be greater than 1 character")]
@@ -120,4 +120,4 @@ class Comment(models.Model) :
     def __str__(self):
         if len(self.text) < 15 : return self.text
         return self.text[:11] + ' ...'
-
+'''
